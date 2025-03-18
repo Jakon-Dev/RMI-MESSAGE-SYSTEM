@@ -8,6 +8,7 @@ import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Objects;
 import java.util.Scanner;
 
 public class Client implements ClientListener {
@@ -17,12 +18,11 @@ public class Client implements ClientListener {
     public static void main(String[] args) {
         try {
             String registryHost = (args.length > 0) ? args[0] : "localhost";
-            int registryPort = (args.length > 1) ? Integer.parseInt(args[1]) : 1099; // Default port
 
-            Registry registry = LocateRegistry.getRegistry(registryHost, registryPort);
+            Registry registry = LocateRegistry.getRegistry(registryHost);
             messager = (MsgRMI) registry.lookup("Messager");
 
-            System.out.println("Conectado al RMI server en " + registryHost + ":" + registryPort);
+            System.out.println("Conectado al RMI server en " + registryHost);
 
             Client client = new Client();
             ClientListener stub = (ClientListener) UnicastRemoteObject.exportObject(client, 0);
@@ -150,9 +150,11 @@ public class Client implements ClientListener {
 
     @Override
     public void newMessage(String sender, String receiver, String message, LocalTime hora) throws RemoteException {
-        hora = LocalTime.parse(hora.format(DateTimeFormatter.ofPattern("HH:mm")));
-        System.out.println();
-        System.out.println(hora + " [" + sender + "]: " + message);
-        System.out.print("> ");
+        if(Objects.equals(name, receiver) || Objects.equals(receiver, "")) {
+            hora = LocalTime.parse(hora.format(DateTimeFormatter.ofPattern("HH:mm")));
+            System.out.println();
+            System.out.println(hora + " [" + sender + "]: " + message);
+            System.out.print("> ");
+        }
     }
 }

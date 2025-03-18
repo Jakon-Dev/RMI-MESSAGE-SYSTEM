@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# netsh advfirewall firewall add rule name="RMI" dir=in action=allow protocol=TCP localport=1099
+
 read -p "Enter the port for the RMI Registry (default 1099): " PORT
 PORT=${PORT:-1099}  # Si el usuario no introduce nada, usa 1099
 
