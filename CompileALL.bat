@@ -11,4 +11,4 @@ echo "Compiling Listener..."
 javac src/Client/ClientListener.java
 
 echo "Compiling MessageRMI..."
-javac src/MessageRMI.java
+javac src/MsgRMI.java
