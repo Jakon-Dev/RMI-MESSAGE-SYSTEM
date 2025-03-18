@@ -6,27 +6,33 @@ import java.rmi.registry.LocateRegistry;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 
-
 public class Server {
     public static void main(String[] args) {
-        try {
-            System.out.println("Cargando Servicio RMI...");
+        int port = 1099;
 
-            // Crear la instancia del servicio
+        if (args.length > 0) {
+            try {
+                port = Integer.parseInt(args[0]);
+            } catch (NumberFormatException e) {
+                System.err.println("Puerto no valido. Usando 1099.");
+            }
+        }
+
+        try {
+            System.out.println("Creando server en el puerto " + port + "...");
+
             MsgRMI messager = new Servant();
 
-            // Crear y obtener el registro RMI
-            Registry registry = LocateRegistry.createRegistry(1099);
+            Registry registry = LocateRegistry.createRegistry(port);
 
-            // Registrar el objeto remoto
             registry.rebind("Messager", messager);
 
-            System.out.println("Servidor RMI listo...");
+            System.out.println("RMI Server creado en el puerto " + port + "...");
 
             Thread thread = new Thread((Runnable) messager);
             thread.start();
         } catch (RemoteException e) {
-            System.err.println("Error en el servidor: " + e.getMessage());
+            System.err.println("Error creando el server: " + e.getMessage());
         }
     }
 }

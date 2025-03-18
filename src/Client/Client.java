@@ -17,8 +17,12 @@ public class Client implements ClientListener {
     public static void main(String[] args) {
         try {
             String registryHost = (args.length > 0) ? args[0] : "localhost";
-            Registry registry = LocateRegistry.getRegistry(registryHost);
+            int registryPort = (args.length > 1) ? Integer.parseInt(args[1]) : 1099; // Default port
+
+            Registry registry = LocateRegistry.getRegistry(registryHost, registryPort);
             messager = (MsgRMI) registry.lookup("Messager");
+
+            System.out.println("Conectado al RMI server en " + registryHost + ":" + registryPort);
 
             Client client = new Client();
             ClientListener stub = (ClientListener) UnicastRemoteObject.exportObject(client, 0);
