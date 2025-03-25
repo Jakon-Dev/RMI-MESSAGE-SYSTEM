@@ -1,6 +1,12 @@
+/* ---------------------------------------------------------------
+Práctica 1.
+Código fuente: src/Client/Client.java
+Grau Informàtica
+48056711M - Marc Lapeña Riu
+--------------------------------------------------------------- */
+
 package src.Client;
 
-import src.Client.ClientListener;
 import src.MsgRMI;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
@@ -8,9 +14,13 @@ import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Objects;
 import java.util.Scanner;
 
+/**
+ * Cliente de la aplicación de mensajería RMI.
+ * Permite a los usuarios autenticarse, enviar y recibir mensajes,
+ * y gestionar grupos de mensajería.
+ */
 public class Client implements ClientListener {
     private String name = "Anonymous";
     private static MsgRMI messager;
@@ -163,6 +173,14 @@ public class Client implements ClientListener {
         }
     }
 
+    /**
+     * Método llamado cuando el cliente recibe un nuevo mensaje.
+     * @param sender Remitente del mensaje.
+     * @param receiver Destinatario del mensaje (puede ser usuario o grupo).
+     * @param message Contenido del mensaje.
+     * @param hora Hora en que se recibió el mensaje.
+     * @throws RemoteException En caso de error en la comunicación remota.
+     */
     @Override
     public void newMessage(String sender, String receiver, String message, LocalTime hora) throws RemoteException {
         hora = LocalTime.parse(hora.format(DateTimeFormatter.ofPattern("HH:mm")));
