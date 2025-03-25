@@ -17,13 +17,18 @@ public class Client implements ClientListener {
 
     public static void main(String[] args) {
         try {
+            // Dirección del registro RMI
             String registryHost = (args.length > 0) ? args[0] : "localhost";
 
+            // Obtener referencia al registro
             Registry registry = LocateRegistry.getRegistry(registryHost);
-            messager = (MsgRMI) registry.lookup("Messager");
+
+            // Buscar el servicio en el registro
+            MsgRMI messager = (MsgRMI) registry.lookup("Messager");
 
             System.out.println("Conectado al RMI server en " + registryHost);
 
+            // Crear instancia del cliente y exportarla como objeto remoto
             Client client = new Client();
             ClientListener stub = (ClientListener) UnicastRemoteObject.exportObject(client, 0);
 
@@ -42,10 +47,15 @@ public class Client implements ClientListener {
                             if (credentials.length < 2) {
                                 System.out.println("Debe proporcionar usuario y contraseña.");
                             } else {
-                                client.name = credentials[0];
-                                messager.addClient(stub, client.name);
-                                boolean success = messager.login(client.name, credentials[1]);
-                                System.out.println(success ? "Login exitoso." : "Error en login.");
+                                String username = credentials[0];
+                                String password = credentials[1];
+                                boolean success = messager.login(username, password, stub);
+                                if (success) {
+                                    client.name = username;
+                                    System.out.println("Login exitoso.");
+                                } else {
+                                    System.out.println("Error en login.");
+                                }
                             }
                         }
                         break;
@@ -60,11 +70,16 @@ public class Client implements ClientListener {
                         if (command.length < 2) {
                             System.out.println("Uso: NewUser <Usuario> <Contraseña>");
                         } else {
-                            String[] userParams = command[1].split(" ", 2);
+                            String[] userParams = command[1].split(" ", 3);
                             if (userParams.length < 2) {
                                 System.out.println("Debe proporcionar usuario y contraseña.");
                             } else {
                                 boolean success = messager.newUser(userParams[0], userParams[1]);
+                                if(userParams.length == 3 && success){
+                                    String group = userParams[2];
+                                    messager.createGroup(group);
+                                    messager.joinGroup(userParams[0], group);
+                                }
                                 System.out.println(success ? "Usuario creado correctamente." : "Error: el usuario ya existe.");
                             }
                         }
@@ -150,11 +165,14 @@ public class Client implements ClientListener {
 
     @Override
     public void newMessage(String sender, String receiver, String message, LocalTime hora) throws RemoteException {
-        if(Objects.equals(name, receiver) || Objects.equals(receiver, "")) {
-            hora = LocalTime.parse(hora.format(DateTimeFormatter.ofPattern("HH:mm")));
-            System.out.println();
-            System.out.println(hora + " [" + sender + "]: " + message);
-            System.out.print("> ");
-        }
+        hora = LocalTime.parse(hora.format(DateTimeFormatter.ofPattern("HH:mm")));
+
+        String output = receiver.isEmpty() ?
+                String.format("\n%s [%s]: %s", hora, sender, message) :
+                String.format("\n%s [%s:%s]: %s", hora, sender, receiver, message);
+
+        System.out.println(output);
+        System.out.print("> ");
     }
+
 }

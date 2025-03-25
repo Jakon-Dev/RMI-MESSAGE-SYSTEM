@@ -6,9 +6,7 @@ import java.util.List;
 
 public interface MsgRMI extends Remote {
 
-    void addClient(ClientListener stub, String name) throws RemoteException;
-
-    boolean login(String name, String credential) throws RemoteException;
+    boolean login(String name, String credential, ClientListener stub) throws RemoteException;
 
     void logout(String name) throws RemoteException;
 
